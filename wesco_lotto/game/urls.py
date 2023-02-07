@@ -28,6 +28,7 @@ urlpatterns = [
     path('ticketstatus/', ticketstatusviewset.as_view()),
     path('updatewinner/', Updatewinnerviewset.as_view()),
     path('sellticket/', sellticketviewset.as_view()),
+    path('winnerlist/', winnerlistviewset.as_view()),
     path('swagger/', schema_view.with_ui('swagger')),
     path('swaggerdocs/', schema_view.with_ui('redoc')),
 ]

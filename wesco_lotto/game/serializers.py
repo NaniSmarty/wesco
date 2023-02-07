@@ -30,3 +30,10 @@ class sellticketSerializer(serializers.Serializer):
     info_array = serializers.JSONField()
 
 
+class winnerlistSerializer(serializers.Serializer):
+    api_user_id = serializers.CharField(max_length=10)
+    agent_id = serializers.CharField(max_length=10)
+    mobile_no = serializers.CharField(max_length=10)
+    game_id = serializers.CharField(max_length=20)
+    drawdate = serializers.CharField(max_length=20)
+

@@ -10,7 +10,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 import pymssql
 from datetime import datetime as dt
-# from .log import *
+from .log import *
+
 from .response import *
 from .credentials import *
 
@@ -37,11 +38,11 @@ class getgameAPIview(GenericAPIView):
             global error_key
             datas = request.data
             client_ip = visitor_ip_address(request)
-            ##io_log.info("  getgame  Req : " + str(datas) + " | " + str(client_ip))
+            #io_log.info("  getgame  Req : " + str(datas) + " | " + str(client_ip))
             serializer = getgameSerializer(data=datas)
             if not serializer.is_valid():
                 out = {"success": False, "errors": serializer.errors}
-                ##io_log.info(" getgame  Res : " + str(out) + " | " + str(client_ip))
+                #io_log.info(" getgame  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             APIToken = self.request.META.get('HTTP_APIKEY', None)
             AgentID = serializer.validated_data['agent_id']
@@ -50,10 +51,10 @@ class getgameAPIview(GenericAPIView):
                                    host=host_ip, port=port_ip)
             cursor = conn.cursor()
             query = f"Exec CLI_MYLotto_Get_GameInfo '{APIToken}','{AgentID}';"
-            ##io_log.info("  getgame  DB Req : " + str(query))
+            #io_log.info("  getgame  DB Req : " + str(query))
             cursor.execute(query)
             result = cursor.fetchall()
-            ##io_log.info("  getgame  DB Res : " + str(result))
+            #io_log.info("  getgame  DB Res : " + str(result))
             status_code = result[0][0]
             status_desc = result[0][1]
             if str(status_code) != "0":
@@ -63,7 +64,7 @@ class getgameAPIview(GenericAPIView):
             ls = []
             cursor.nextset()
             result = cursor.fetchall()
-            ##io_log.info("  getgame  DB Res : " + str(result))
+            #io_log.info("  getgame  DB Res : " + str(result))
             result1 = result[0][0]
             result2 = result1.split('|')
             for x in result2:
@@ -78,10 +79,11 @@ class getgameAPIview(GenericAPIView):
             conn.commit()
             conn.close()
             out = {"status": int(status_code), "description": status_desc, "generator_datetime": time, "result": ls}
-            ##io_log.info(" getgame  Res : " + str(out) + " | " + str(client_ip))
+            #io_log.info(" getgame  Res : " + str(out) + " | " + str(client_ip))
             return Response(out, status=status.HTTP_200_OK)
         except Exception as e:
-            ##io_log.exception("  getgame  Error:\n"+str(e))
+            raise
+            #io_log.exception("  getgame  Error:\n"+str(e))
             return Response("{'status':1,'Description':500}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class cancelticketviewset(GenericAPIView):
@@ -94,11 +96,11 @@ class cancelticketviewset(GenericAPIView):
         try:
             datas = request.data
             client_ip = visitor_ip_address(request)
-            ##io_log.info("  Cancel ticket  Req : " + str(datas) + " | " + str(client_ip))
+            #io_log.info("  Cancel ticket  Req : " + str(datas) + " | " + str(client_ip))
             serializer = cancelticketSerializer(data=datas)
             if not serializer.is_valid():
                 out = {"success": False, "errors": serializer.errors}
-                #io_log.info(" Cancel ticket  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Cancel ticket  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             # APIToken = self.request.META.get('HTTP_APIKEY', None)
             APIUserID = serializer.validated_data['api_user_id']
@@ -110,20 +112,20 @@ class cancelticketviewset(GenericAPIView):
                                    host=host_ip, port=port_ip)
             cursor = conn.cursor()
             query = f"CLI_Mylotto_cancelsale '{APIUserID}','{AgentID}','{Mobileno}','{Ticketid}';"
-            #io_log.info("  cancel ticket  DB Req : " + str(query))
+            ##io_log.info("  cancel ticket  DB Req : " + str(query))
             cursor.execute(query)
             result = cursor.fetchall()
-            #io_log.info("  cancel ticket  DB Res : " + str(result))
+            ##io_log.info("  cancel ticket  DB Res : " + str(result))
             status_code = result[0][0]
             status_result = result[0][1]
             if str(status_code) != "0":
                 out = {"status": int(status_code), "description": status_result}
-                #io_log.info(" Cancel ticket  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Cancel ticket  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_200_OK)
             time = result[0][2]
             cursor.nextset()
             result1 = cursor.fetchall()
-            #io_log.info("  cancel ticket  DB Res : " + str(result1))
+            ##io_log.info("  cancel ticket  DB Res : " + str(result1))
             var1 = result1[0][0]
             var2 = var1.split("~")
             result_output = {"Transactionid": var2[0], "totalAmount": float(var2[1]),
@@ -131,10 +133,10 @@ class cancelticketviewset(GenericAPIView):
             conn.commit()
             conn.close()
             out = {"status": int(status_code), "description": status_result, "generator_datetime": time, "result": result_output}
-            #io_log.info(" Cancel ticket  Res : " + str(out) + " | " + str(client_ip))
+            ##io_log.info(" Cancel ticket  Res : " + str(out) + " | " + str(client_ip))
             return Response(out, status=status.HTTP_200_OK)
         except Exception as e:
-            #io_log.exception("(cancelticket)(CLI_Mylotto_cancelsale)Error:\n"+str(e))
+            ##io_log.exception("(cancelticket)(CLI_Mylotto_cancelsale)Error:\n"+str(e))
             return Response("{'status':1,'Description':500}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -150,11 +152,11 @@ class checkwinnerviewset(GenericAPIView):
         try:
             datas = request.data
             client_ip = visitor_ip_address(request)
-            #io_log.info("  Check Winner Req : " + str(datas) + " | " + str(client_ip))
+            ##io_log.info("  Check Winner Req : " + str(datas) + " | " + str(client_ip))
             serializer = checkwinnerSerializer(data=datas)
             if not serializer.is_valid():
                 out = {"success": False, "errors": serializer.errors}
-                #io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             # APIToken = self.request.META.get('HTTP_APIKEY', None)
             APIUserID = serializer.validated_data['api_user_id']
@@ -166,17 +168,17 @@ class checkwinnerviewset(GenericAPIView):
                                    host=host_ip, port=port_ip)
             cursor = conn.cursor()
             query = f"CLI_Mylotto_CheckWinner '{APIUserID}','{AgentID}','{Mobileno}','{TransID}';"
-            #io_log.info("  winner list  DB Req : " + str(query))
+            ##io_log.info("  winner list  DB Req : " + str(query))
             cursor.execute(query)
             # cursor.execute("CLI_Mylotto_Winnerlist '{APIUserID}','{AgentID}','{Mobileno}','{GameID}','{DrawDate}';")
 
             result = cursor.fetchall()
-            #io_log.info("  winner list  DB Res : " + str(result))
+            ##io_log.info("  winner list  DB Res : " + str(result))
             status_code = int(result[0][0])
             status_result = result[0][1]
             if status_code != 0:
                 out = {"status": int(status_code), "description": status_result}
-                #io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_200_OK)
             generated_time = result[0][2]
             cursor.nextset()
@@ -190,10 +192,10 @@ class checkwinnerviewset(GenericAPIView):
                 x ={"Ticket_id":str(info[0]),"Amount":str(info[1])}
                 info_array.append(x)
             out = {"status": int(status_code), "description": status_result, "generator_datetime": generated_time, "Info": info_array}
-            #io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
+            ##io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
             return Response(out, status=status.HTTP_200_OK)
         except Exception as e:
-            #io_log.exception("(winnerlist)(CLI_Mylotto_CheckWinner)Error:\n"+str(e))
+            ##io_log.exception("(winnerlist)(CLI_Mylotto_CheckWinner)Error:\n"+str(e))
             return Response("{'status':1,'Description':500}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -209,12 +211,12 @@ class ticketstatusviewset(GenericAPIView):
         try:
             datas = request.data
             client_ip = visitor_ip_address(request)
-            #io_log.info("  Ticket status  Req : " + str(datas) + " | " + str(client_ip))
+            ##io_log.info("  Ticket status  Req : " + str(datas) + " | " + str(client_ip))
             global a
             serializer = ticketstatusSerializer(data=datas)
             if not serializer.is_valid():
                 out = {"success": False, "errors": serializer.errors}
-                #io_log.info(" Ticket status  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Ticket status  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             # APIToken = self.request.META.get('HTTP_APIKEY', None)
             APIUserID = serializer.validated_data['api_user_id']
@@ -225,12 +227,12 @@ class ticketstatusviewset(GenericAPIView):
                                    host=host_ip, port=port_ip)
             cursor = conn.cursor()
             query = f"CLI_Mylotto_TicketStatus '{APIUserID}','{AgentID}','{TransID}';"
-            #io_log.info("  ticket status  DB Req : " + str(query))
+            ##io_log.info("  ticket status  DB Req : " + str(query))
             cursor.execute(query)
             # cursor.execute("CLI_Mylotto_Winnerlist '{APIUserID}','{AgentID}','{Mobileno}','{GameID}','{DrawDate}';")
 
             result = cursor.fetchall()
-            #io_log.info("  ticket status  DB Res : " + str(result))
+            ##io_log.info("  ticket status  DB Res : " + str(result))
             status_code = result[0][0]
             status_result = result[0][1]
             try:
@@ -239,23 +241,23 @@ class ticketstatusviewset(GenericAPIView):
                 pass
             if status_code =='1':
                 out = {"status": int(status_code), "description": status_result}
-                #io_log.info(" Ticket status  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Ticket status  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_200_OK)
             ls = []
             while (cursor.nextset()):
                 result1 = cursor.fetchall()
-                #io_log.info("  ticket status  DB Res : " + str(result1))
+                ##io_log.info("  ticket status  DB Res : " + str(result1))
                 ls.append(result1)
             result_output = ls[0][0][0]
             amount = ls[0][0][1]
             conn.commit()
             conn.close()
             out = {"status": int(status_code), "description": status_result, "generator_datetime": time, "Ticket_status": result_output,"Amount":amount}
-            #io_log.info(" Ticket status  Res : " + str(out) + " | " + str(client_ip))
+            ##io_log.info(" Ticket status  Res : " + str(out) + " | " + str(client_ip))
             return Response(out, status=status.HTTP_200_OK)
 
         except Exception as e:
-            #io_log.exception("(ticketstatus)(CLI_Mylotto_TicketStatus)Error:\n"+str(e))
+            ##io_log.exception("(ticketstatus)(CLI_Mylotto_TicketStatus)Error:\n"+str(e))
             return Response("{'status':1,'Description':500}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -270,11 +272,11 @@ class Updatewinnerviewset(GenericAPIView):
         try:
             datas = request.data
             client_ip = visitor_ip_address(request)
-            #io_log.info("  Check Winner Req : " + str(datas) + " | " + str(client_ip))
+            ##io_log.info("  Check Winner Req : " + str(datas) + " | " + str(client_ip))
             serializer = checkwinnerSerializer(data=datas)
             if not serializer.is_valid():
                 out = {"success": False, "errors": serializer.errors}
-                #io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             # APIToken = self.request.META.get('HTTP_APIKEY', None)
             APIUserID = serializer.validated_data['api_user_id']
@@ -286,17 +288,17 @@ class Updatewinnerviewset(GenericAPIView):
                                    host=host_ip, port=port_ip)
             cursor = conn.cursor()
             query = f"CLI_Mylotto_UPD_Winner '{APIUserID}','{AgentID}','{Mobileno}','{TransID}';"
-            #io_log.info("  winner list  DB Req : " + str(query))
+            ##io_log.info("  winner list  DB Req : " + str(query))
             cursor.execute(query)
             # cursor.execute("CLI_Mylotto_Winnerlist '{APIUserID}','{AgentID}','{Mobileno}','{GameID}','{DrawDate}';")
 
             result = cursor.fetchall()
-            #io_log.info("  winner list  DB Res : " + str(result))
+            ##io_log.info("  winner list  DB Res : " + str(result))
             status_code = int(result[0][0])
             status_result = result[0][1]
             if status_code != 0:
                 out = {"status": int(status_code), "description": status_result}
-                #io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_200_OK)
             generated_time = result[0][2]
             cursor.nextset()
@@ -305,11 +307,11 @@ class Updatewinnerviewset(GenericAPIView):
             conn.commit()
             conn.close()
             out = {"status": int(status_code), "description": status_result, "generator_datetime": generated_time, "Info": set3_info_string}
-            #io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
+            ##io_log.info(" Check Winner  Res : " + str(out) + " | " + str(client_ip))
             return Response(out, status=status.HTTP_200_OK)
         except Exception as e:
             raise
-            #io_log.exception("(winnerlist)(CLI_Mylotto_CheckWinner)Error:\n"+str(e))
+            ##io_log.exception("(winnerlist)(CLI_Mylotto_CheckWinner)Error:\n"+str(e))
             return Response("{'status':1,'Description':500}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -326,11 +328,11 @@ class sellticketviewset(GenericAPIView):
             global error_key
             datas = request.data
             client_ip = visitor_ip_address(request)
-            #io_log.info("  Sell Ticket  Req : " + str(datas) + " | " + str(client_ip))
+            ##io_log.info("  Sell Ticket  Req : " + str(datas) + " | " + str(client_ip))
             serializer = sellticketSerializer(data=datas)
             if not serializer.is_valid():
                 out={"success": False, "errors": serializer.errors}
-                #io_log.info(" Sell Ticket  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Sell Ticket  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             # APIToken = self.request.META.get('HTTP_APIKEY', None)
             APIUserID = serializer.validated_data['api_user_id']
@@ -351,16 +353,16 @@ class sellticketviewset(GenericAPIView):
                                    host=host_ip, port=port_ip)
             cursor = conn.cursor()
             query = f"CLI_Mylotto_SellTicket '{APIUserID}','{AgentID}','{Mobile}','{TransID}','{GameID}','{DrawDate}','{temp_string}';"
-            #io_log.info("  sell ticket  DB Req : " + str(query))
+            ##io_log.info("  sell ticket  DB Req : " + str(query))
             cursor.execute(query)
             result = cursor.fetchall()
-            #io_log.info("  sell ticket  DB Res : " + str(result))
+            ##io_log.info("  sell ticket  DB Res : " + str(result))
             # print(result, "$$$$$$$$$$$$")
             status_code = result[0][0]
             status_result = result[0][1]
             if status_code == '1':
                 out = {"Result": {"status": int(status_code), "description": status_result}}
-                #io_log.info(" Sell Ticket  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Sell Ticket  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_200_OK)
             try:
                 time = result[0][2]
@@ -374,7 +376,7 @@ class sellticketviewset(GenericAPIView):
 
                 while (cursor.nextset()):
                     result1 = cursor.fetchall()
-                    #io_log.info("  sell ticket  DB Res : " + str(result1))
+                    ##io_log.info("  sell ticket  DB Res : " + str(result1))
                     ls.append(result1)
                 # print(ls, "**********")
                 # if len(ls) !=0:
@@ -402,13 +404,95 @@ class sellticketviewset(GenericAPIView):
 
             try:
                 out = {"Result": {"status": int(status_code), "description": status_result, "draws": output_result}}
-                #io_log.info(" Sell Ticket  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Sell Ticket  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_200_OK)
             except:
                 out = {"Result": {"status": int(status_code), "description": status_result}}
-                #io_log.info(" Sell Ticket  Res : " + str(out) + " | " + str(client_ip))
+                ##io_log.info(" Sell Ticket  Res : " + str(out) + " | " + str(client_ip))
                 return Response(out, status=status.HTTP_200_OK)
         except Exception as e:
             raise
-            #io_log.exception("(sellticket)(CLI_Mylotto_SellTicket)Error:\n"+str(e))
+            ##io_log.exception("(sellticket)(CLI_Mylotto_SellTicket)Error:\n"+str(e))
+            return Response("{'status':1,'Description':500}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class winnerlistviewset(GenericAPIView):
+    permission_classes = (AllowAny,)
+    authentication_class = JSONWebTokenAuthentication
+    # queryset = getgame.objects.all()
+    serializer_class = winnerlistSerializer
+
+    @swagger_auto_schema(request_body=winnerlistSerializer, responses=checkwinner_schema_dict5)
+    def post(self, request):
+        try:
+            datas = request.data
+            client_ip = visitor_ip_address(request)
+            #io_log.info("  Winner list  Req : " + str(datas) + " | " + str(client_ip))
+            global a
+            serializer = winnerlistSerializer(data=datas)
+            if not serializer.is_valid():
+                out = {"success": False, "errors": serializer.errors}
+                #io_log.info(" Winner list  Res : " + str(out) + " | " + str(client_ip))
+                return Response(out, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            # APIToken = self.request.META.get('HTTP_APIKEY', None)
+            APIUserID = serializer.validated_data['api_user_id']
+            AgentID = serializer.validated_data['agent_id']
+            Mobileno = serializer.validated_data['mobile_no']
+            GameID = serializer.validated_data['game_id']
+            DrawDate = serializer.validated_data['drawdate']
+
+            conn = pymssql.connect(database=db_name, user=user_name, password=pwd,
+                                   host=host_ip, port=port_ip)
+            cursor = conn.cursor()
+            query = f"CLI_Mylotto_Winnerlist '{APIUserID}','{AgentID}','{Mobileno}','{GameID}','{DrawDate}';"
+            #io_log.info("  winner list  DB Req : " + str(query))
+            cursor.execute(query)
+            # cursor.execute("CLI_Mylotto_Winnerlist '{APIUserID}','{AgentID}','{Mobileno}','{GameID}','{DrawDate}';")
+            result = cursor.fetchall()
+            #io_log.info("  winner list  DB Res : " + str(result))
+            status_code = result[0][0]
+            status_result = result[0][1]
+            try:
+                time = result[0][2]
+            except:
+                pass
+
+            ls = []
+            ls1 = []
+            while (cursor.nextset()):
+                result1 = cursor.fetchall()
+                #io_log.info("  winner list  DB Res : " + str(result1))
+                ls.append(result1)
+            try:
+                # if len(ls)!=0:
+                result1 = ls[1][0][0]
+                var5 = ls[0][0][0]
+                var6 = var5.split("~")
+                var2 = result1.split("|")
+                if '' in var2:
+                    var2.remove('')
+                # print(var2)
+                for x in var2:
+                    var3 = x.split('~')
+                    z = {"Ticketid": var3[0], "WinAmount": var3[1]}
+                    ls1.append(z)
+
+                    # print(var3[0])
+
+                result_output = {"saledate": var6[0], "saletime": var6[1], "info": ls1}
+
+            except:
+                pass
+            conn.commit()
+            conn.close()
+            try:
+                out = {"Result": {"status": int(status_code), "description": status_result, "generator_datetime": time, "draws": result_output}}
+                #io_log.info(" Winner list  Res : " + str(out) + " | " + str(client_ip))
+                return Response(out, status=status.HTTP_200_OK)
+            except:
+                out = {"Result": {"status": int(status_code), "description": status_result}}
+                #io_log.info(" Winner list  Res : " + str(out) + " | " + str(client_ip))
+                return Response(out, status=status.HTTP_200_OK)
+        except Exception as e:
+            #io_log.exception("(winnerlist)(CLI_Mylotto_Winnerlist)Error:\n"+str(e))
+            raise
             return Response("{'status':1,'Description':500}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)

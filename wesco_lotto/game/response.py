@@ -558,6 +558,77 @@ response_schema_dict8 = {
                 }
             )
         }
+checkwinner_schema_dict5= {
+    "200": openapi.Response(
+        description="success",
+        examples={
+            "application/json": {
+
+                "Result": {
+                    "status": 0,
+                    "description": "Success",
+                    "generator_datetime": "~20220505 11:25:14",
+                    "draws": {
+                        "saledate": "20220408",
+                        "saletime": "15:54:54",
+                        "info": [
+                            {
+                                "Ticketid": "20220408201306E2A",
+                                "WinAmount": "75"
+                            },
+                            {
+                                "Ticketid": "20220408202024E2B",
+                                "WinAmount": "75"
+                            },
+
+                            {
+                                "Ticketid": "202204082024541D3",
+                                "WinAmount": "75"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ),
+    "400": openapi.Response(
+        description="Required Parameters Error",
+        examples={
+            "application/json": {
+                "Status": "1",
+                "Message": "Required Parameters Error"
+            }
+        }
+    ),
+    "406": openapi.Response(
+        description="Backend Validation Error",
+        examples={
+            "application/json": {
+                "Status": "1",
+                "Message": "Backend Validation Error"
+            }
+        }
+    ),
+    "422": openapi.Response(
+        description="Unprocessable Entity",
+        examples={
+            "application/json": {
+                "Status": "1",
+                "Message": "Unprocessable Entity"
+            }
+        }
+    ),
+    "500": openapi.Response(
+        description="Required Parameters Error",
+        examples={
+            "application/json": {
+                "Status": "1",
+                "Message": "Internal Server Error"
+            }
+        }
+    )
+}
+
 
 
 
