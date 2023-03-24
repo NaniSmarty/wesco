@@ -2,11 +2,6 @@ pipeline {
     agent any
 
     stages {
-     stage("Env Variables"){
-            steps{
-                sh "printenv"                                                     
-            }
-        }
         stage('Build') {
             steps {
                 echo 'Building..'
@@ -20,6 +15,11 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
+            }
+        }
+        stage("Env Variables"){
+            steps{
+                sh "printenv"                                                     
             }
         }
     }
