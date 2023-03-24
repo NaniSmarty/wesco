@@ -17,10 +17,5 @@ pipeline {
                 echo 'Deploying....'
             }
         }
-        stage("Env Variables"){
-            steps{
-                bat "set"                                                     
-            }
-        }
     }
 }
